@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AiAlpha Sentiment Analysis with Amazon Comprehend
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+    Runtime: python3.11
+
+Parameters:
+  S3BucketName:
+    Type: String
+    Default: pgr301-sentiment-data
+    Description: S3 bucket for storing sentiment analysis results
+
+Resources:
+  SentimentAnalysisFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: sentiment_function/
+      Handler: app.lambda_handler
+      Environment:
+        Variables:
+          S3_BUCKET: !Ref S3BucketName
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref S3BucketName
+        - Statement:
+          - Effect: Allow
+            Action:
+              - comprehend:DetectSentiment
+              - comprehend:DetectEntities
+            Resource: '*'
+      Events:
+        AnalyzeApi:
+          Type: Api
+          Properties:
+            Path: /analyze
+            Method: post
+
+Outputs:
+  SentimentAnalysisApi:
+    Description: "API Gateway endpoint URL for sentiment analysis"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/analyze/"
+
+  SentimentAnalysisFunction:
+    Description: "Sentiment Analysis Lambda Function ARN"
+    Value: !GetAtt SentimentAnalysisFunction.Arn
