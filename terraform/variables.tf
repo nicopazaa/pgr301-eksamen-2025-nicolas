@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region to deploy resources in"
   type        = string
-  default     = "eu-north-1"
+  default     = "eu-west-1"
 }
 
 variable "sam_artifacts_bucket_name" {
