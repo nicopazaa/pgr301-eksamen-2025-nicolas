@@ -19,11 +19,9 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-1
+          aws-region: eu-north-1   # ← KORREKT REGION
 
       - uses: hashicorp/setup-terraform@v3
-        with:
-          terraform-version: 1.5.7
 
       - run: terraform fmt -check
         working-directory: infra-s3
@@ -40,3 +38,4 @@ jobs:
       - if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve
         working-directory: infra-s3
+
