@@ -11,6 +11,7 @@ on:
 jobs:
   tf:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
 
@@ -21,6 +22,8 @@ jobs:
           aws-region: eu-west-1
 
       - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform-version: 1.5.7
 
       - run: terraform fmt -check
         working-directory: infra-s3
