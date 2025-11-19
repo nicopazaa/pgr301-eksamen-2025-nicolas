@@ -1,12 +1,13 @@
-
 terraform {
   required_version = ">= 1.5.0"
+
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "~> 5.0"
     }
   }
+
   backend "s3" {
     bucket = "pgr301-terraform-state"
     key    = "infra-s3/terraform.tfstate"
@@ -20,7 +21,10 @@ provider "aws" {
 
 resource "aws_s3_bucket" "analysis" {
   bucket = var.bucket_name
-  tags = { Purpose = "analysis-results" }
+
+  tags = {
+    Purpose = "analysis-results"
+  }
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "lc" {
@@ -30,7 +34,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "lc" {
     id     = "midlertidig-expire"
     status = "Enabled"
 
-    filter { prefix = "midlertidig/" }
+    filter {
+      prefix = "midlertidig/"
+    }
 
     transition {
       days          = var.transition_days
