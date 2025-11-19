@@ -1,27 +1,25 @@
 name: Terraform S3 infra
 
 on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "terraform/infra-s3/**"
+      - ".github/workflows/terraform-s3.yml"
   pull_request:
     paths:
-      - 'terraform/infra-s3/**'
-      - '.github/workflows/terraform-s3.yml'
-  push:
-    branches:
-      - main
-    paths:
-      - 'terraform/infra-s3/**'
-      - '.github/workflows/terraform-s3.yml'
+      - "terraform/infra-s3/**"
+      - ".github/workflows/terraform-s3.yml"
+
+env:
+  AWS_REGION: eu-west-1
+  # Terraform plukker automatisk opp TF_VAR_* som input-variabler.
+  TF_VAR_aws_region: eu-west-1
+  TF_VAR_bucket_name: ${{ secrets.SENTIMENT_BUCKET_NAME }}
 
 jobs:
-  terraform:
+  tf:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: terraform/infra-s3
-
-    env:
-      TF_IN_AUTOMATION: true
 
     steps:
       - name: Checkout repository
@@ -32,23 +30,21 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-north-1
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Setup Terraform
+      - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.13.5
+          terraform_version: "1.5.7"
+
+      - name: Terraform fmt (check)
+        run: terraform fmt -check
+        working-directory: terraform/infra-s3
 
       - name: Terraform init
-        run: terraform init
+        run: terraform init -input=false
+        working-directory: terraform/infra-s3
 
       - name: Terraform validate
         run: terraform validate
-
-      - name: Terraform plan
-        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
-        run: terraform plan
-
-      - name: Terraform apply
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve
+        working-directory: terraform/infra-s3
