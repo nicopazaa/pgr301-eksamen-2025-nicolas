@@ -1,41 +1,57 @@
-name: Terraform S3
+name: Terraform S3 infra
 
 on:
+  pull_request:
+    paths:
+      - 'terraform/infra-s3/**'
+      - '.github/workflows/terraform-s3.yml'
   push:
     branches:
       - main
     paths:
-      - infra-s3/**
-      - .github/workflows/terraform-s3.yml
+      - 'terraform/infra-s3/**'
+      - '.github/workflows/terraform-s3.yml'
 
 jobs:
-  tf:
+  terraform:
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
+    defaults:
+      run:
+        working-directory: terraform/infra-s3
 
-      - uses: aws-actions/configure-aws-credentials@v2
+    env:
+      TF_IN_AUTOMATION: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-north-1   # ← KORREKT REGION
+          aws-region: eu-north-1
 
-      - uses: hashicorp/setup-terraform@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.13.5
 
-      - run: terraform fmt -check
-        working-directory: infra-s3
+      - name: Terraform fmt
+        run: terraform fmt -check
 
-      - run: terraform init
-        working-directory: infra-s3
+      - name: Terraform init
+        run: terraform init
 
-      - run: terraform validate
-        working-directory: infra-s3
+      - name: Terraform validate
+        run: terraform validate
 
-      - run: terraform plan
-        working-directory: infra-s3
+      - name: Terraform plan
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+        run: terraform plan
 
-      - if: github.ref == 'refs/heads/main'
+      - name: Terraform apply
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve
-        working-directory: infra-s3
-
