@@ -27,11 +27,11 @@ Resources:
         - S3CrudPolicy:
             BucketName: !Ref S3BucketName
         - Statement:
-          - Effect: Allow
-            Action:
-              - comprehend:DetectSentiment
-              - comprehend:DetectEntities
-            Resource: '*'
+            - Effect: Allow
+              Action:
+                - comprehend:DetectSentiment
+                - comprehend:DetectEntities
+              Resource: '*'
       Events:
         AnalyzeApi:
           Type: Api
@@ -42,8 +42,7 @@ Resources:
 Outputs:
   SentimentAnalysisApi:
     Description: "API Gateway endpoint URL for sentiment analysis"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/analyze/"
-
-  SentimentAnalysisFunction:
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/analyze"
+  SentimentAnalysisFunctionArn:
     Description: "Sentiment Analysis Lambda Function ARN"
     Value: !GetAtt SentimentAnalysisFunction.Arn
