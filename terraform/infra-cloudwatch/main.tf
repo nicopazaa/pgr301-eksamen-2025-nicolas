@@ -1,7 +1,10 @@
+provider "aws" {
+  region = "eu-north-1"
+}
 
-provider "aws" { region = "eu-west-1" }
-
-resource "aws_sns_topic" "alerts" { name = "sentiment-alerts" }
+resource "aws_sns_topic" "alerts" {
+  name = "sentiment-alerts"
+}
 
 resource "aws_cloudwatch_dashboard" "dash" {
   dashboard_name = "sentiment-dashboard"

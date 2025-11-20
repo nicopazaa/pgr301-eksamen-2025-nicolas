@@ -10,9 +10,9 @@ terraform {
 
   # Remote state for this part of the infra
   backend "s3" {
-    bucket = "pgr301-terraform-state"
+    bucket = "pgr301-terraform-state-nicopazaa-01"
     key    = "infra-s3/terraform.tfstate"
-    region = "eu-west-1"
+    region = "eu-north-1"
   }
 }
 

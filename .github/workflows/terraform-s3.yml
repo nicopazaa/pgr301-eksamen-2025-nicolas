@@ -1,29 +1,34 @@
-name: Terraform S3 infra
+name: Terraform infra-s3
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
     paths:
-      - "terraform/infra-s3/**"
-      - ".github/workflows/terraform-s3.yml"
+      - 'terraform/infra-s3/**'
   pull_request:
     paths:
-      - "terraform/infra-s3/**"
-      - ".github/workflows/terraform-s3.yml"
-
-env:
-  AWS_REGION: eu-west-1
-  # Terraform plukker automatisk opp TF_VAR_* som input-variabler.
-  TF_VAR_aws_region: eu-west-1
-  TF_VAR_bucket_name: ${{ secrets.SENTIMENT_BUCKET_NAME }}
+      - 'terraform/infra-s3/**'
 
 jobs:
-  tf:
+  terraform:
     runs-on: ubuntu-latest
+
+    env:
+      TF_WORKING_DIR: terraform/infra-s3
+      AWS_REGION: eu-north-1
+      ANALYSIS_BUCKET_NAME: pgr301-analysis-nicopazaa
+
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -32,19 +37,24 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.5.7"
-
-      - name: Terraform fmt (check)
+      - name: Terraform fmt
+        working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform fmt -check
-        working-directory: terraform/infra-s3
 
       - name: Terraform init
+        working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform init -input=false
-        working-directory: terraform/infra-s3
 
       - name: Terraform validate
+        working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform validate
-        working-directory: terraform/infra-s3
+
+      - name: Terraform plan
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform plan -input=false -var "bucket_name=${{ env.ANALYSIS_BUCKET_NAME }}"
+
+      - name: Terraform apply
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform apply -input=false -auto-approve -var "bucket_name=${{ env.ANALYSIS_BUCKET_NAME }}"
