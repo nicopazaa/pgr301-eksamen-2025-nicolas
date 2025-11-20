@@ -56,4 +56,5 @@ jobs:
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
             --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
-            --parameter-overrides S3BucketName=$S3_BUCKET_NAME
+            --parameter-overrides S3BucketName=$S3_BUCKET_NAME \
+            --resolve-s3
