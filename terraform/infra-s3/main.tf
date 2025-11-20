@@ -8,6 +8,7 @@ terraform {
     }
   }
 
+  # Remote state for this part of the infra
   backend "s3" {
     bucket = "pgr301-terraform-state"
     key    = "infra-s3/terraform.tfstate"
@@ -19,15 +20,19 @@ provider "aws" {
   region = var.aws_region
 }
 
+# S3 bucket for analysis results
 resource "aws_s3_bucket" "analysis" {
   bucket = var.bucket_name
 
   tags = {
-    Purpose = "analysis-results"
+    Name        = "analysis-results-bucket"
+    Purpose     = "analysis-results"
+    Environment = "exam"
   }
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "lc" {
+# Lifecycle: objects under midlertidig/ -> Glacier -> slettes
+resource "aws_s3_bucket_lifecycle_configuration" "analysis_lifecycle" {
   bucket = aws_s3_bucket.analysis.id
 
   rule {
