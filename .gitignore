@@ -2,3 +2,4 @@
 **/.terraform/
 **/.aws-sam/**/terraform.tfstate
 **/terraform.tfstate.backup
+sam-comprehend/.aws-sam/
