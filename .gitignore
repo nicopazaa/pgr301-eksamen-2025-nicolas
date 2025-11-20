@@ -1,3 +1,4 @@
 # Terraform local state dirs
 **/.terraform/
-**/.aws-sam/
+**/.aws-sam/**/terraform.tfstate
+**/terraform.tfstate.backup
