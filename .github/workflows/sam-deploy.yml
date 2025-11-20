@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'sam-comprehend/**'
+      - '.github/workflows/sam-deploy.yml'
   pull_request:
     paths:
       - 'sam-comprehend/**'
