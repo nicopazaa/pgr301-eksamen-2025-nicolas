@@ -1,42 +1,29 @@
-name: Deploy SAM Application
+name: SAM deploy
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'sam-comprehend/**'
-      - '.github/workflows/sam-deploy.yml'
   push:
-    branches:
-      - main
+    branches: [ main ]
     paths:
       - 'sam-comprehend/**'
-      - '.github/workflows/sam-deploy.yml'
+  pull_request:
+    paths:
+      - 'sam-comprehend/**'
 
 jobs:
-  sam:
+  sam-build-and-deploy:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: sam-comprehend
 
     env:
       AWS_REGION: eu-north-1
-      SAM_ARTIFACTS_BUCKET: ${{ secrets.SAM_ARTIFACTS_BUCKET }}
+      STACK_NAME: sentiment-sam-nicopazaa
+      S3_BUCKET_NAME: pgr301-analysis-nicopazaa
+
+    permissions:
+      contents: read
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Set up SAM CLI
-        uses: aws-actions/setup-sam@v2
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -45,19 +32,28 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Setup AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: SAM validate
+        working-directory: sam-comprehend
         run: sam validate
 
       - name: SAM build
+        working-directory: sam-comprehend
         run: sam build
 
-      - name: SAM deploy
+      - name: SAM deploy (main only)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: >
-          sam deploy
-          --stack-name aialpha-sentiment-nicolas
-          --s3-bucket "$SAM_ARTIFACTS_BUCKET"
-          --capabilities CAPABILITY_IAM
-          --no-confirm-changeset
-          --no-fail-on-empty-changeset
-          --region $AWS_REGION
+        working-directory: sam-comprehend
+        run: |
+          sam deploy \
+            --stack-name $STACK_NAME \
+            --region $AWS_REGION \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
+            --parameter-overrides S3BucketName=$S3_BUCKET_NAME
