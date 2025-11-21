@@ -1,5 +1,7 @@
-# Terraform local state dirs
+# Terraform local state
 **/.terraform/
-**/.aws-sam/**/terraform.tfstate
+**/terraform.tfstate
 **/terraform.tfstate.backup
-sam-comprehend/.aws-sam/
+
+# SAM build artifacts (alle .aws-sam-kataloger i repoet)
+.aws-sam/
