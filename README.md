@@ -6,7 +6,7 @@ Som nyansatt utvikler i **AiAlpha** – en hyperambisiøs startup grunnlagt av e
 
 Selskapet hevder å levere «sanntids sentimentanalyse av Big Tech-nyheter» – altså lese nettaviser og prøve å gjette om markedet er i FOMO- eller panic-sell-modus. Kundene er en fargerik blanding av daytradere og Discord-entusiaster med sterke meninger om markedet og svært begrenset tålmodighet.
 
-Gründeren har til nå utviklet løsningen alene, hovedsakelig gjennom «vibe-coding» med AI-assistanse. Prototypen er bygget med AWS SAM og Python, inspirert av Øving 4 i PGR301, og fungerer på et grunnleggende nivå. Likevel baserer den seg på AWS Comprehend i en form som gir for grovkornede resultater – sentiment beregnes på dokumentnivå, noe som ikke gir den detaljerte innsikten løsningen trenger.
+Gründeren har til nå utviklet løsningen alene, hovedsakelig gjennom «vibe-coding» med AI-assistanse. Prototypen er bygget med AWS SAM og Python, inspirert av Øving A4 i PGR301, og fungerer på et grunnleggende nivå. Likevel baserer den seg på AWS Comprehend i en form som gir for grovkornede resultater – sentiment beregnes på dokumentnivå, noe som ikke gir den detaljerte innsikten løsningen trenger.
 
 Han har også eksperimentert med en Java-basert modell som gir bedre faglige resultater, men kodebasen har nå nådd et modenhetspunkt hvor små endringer introduserer uforutsigbare konsekvenser og følgefeil. Dette var håndterbart så lenge han jobbet alene, men er ikke bærekraftig når flere utviklere skal inn.
 

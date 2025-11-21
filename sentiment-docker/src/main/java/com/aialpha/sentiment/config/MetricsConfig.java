@@ -14,31 +14,23 @@ import java.util.Map;
 
 @Configuration
 public class MetricsConfig {
+
     @Bean
     public CloudWatchAsyncClient cloudWatchAsyncClient() {
-        return CloudWatchAsyncClient
-                .builder()
-                .region(Region.EU_WEST_1)
+        return CloudWatchAsyncClient.builder()
+                .region(Region.EU_NORTH_1) // behold regionen du bruker i AWS
                 .build();
     }
 
     @Bean
-    public MeterRegistry getMeterRegistry() {
-        CloudWatchConfig cloudWatchConfig = setupCloudWatchConfig();
-        return
-                new CloudWatchMeterRegistry(
-                        cloudWatchConfig,
-                        Clock.SYSTEM,
-                        cloudWatchAsyncClient());
-    }
-
-    private CloudWatchConfig setupCloudWatchConfig() {
+    public CloudWatchConfig cloudWatchConfig() {
         return new CloudWatchConfig() {
-            // TODO: VIKTIG! Endre "SentimentApp" til ditt kandidatnummer (f.eks. "kandidat123")
-            // Du MÅ bruke SAMME namespace når du lager CloudWatch Dashboard i Terraform!
-            private Map<String, String> configuration = Map.of(
-                    "cloudwatch.namespace", "SentimentApp",
-                    "cloudwatch.step", Duration.ofSeconds(5).toString());
+
+            // VIKTIG: namespace brukes også i Terraform-dashboard og -alarm
+            private final Map<String, String> configuration = Map.of(
+                    "cloudwatch.namespace", "kandidat-48-SentimentApp",
+                    "cloudwatch.step", Duration.ofSeconds(5).toString()
+            );
 
             @Override
             public String get(String key) {
@@ -47,4 +39,14 @@ public class MetricsConfig {
         };
     }
 
+    @Bean
+    public MeterRegistry cloudWatchMeterRegistry(CloudWatchAsyncClient cloudWatchAsyncClient,
+                                                 CloudWatchConfig cloudWatchConfig) {
+        return CloudWatchMeterRegistry.builder(
+                        cloudWatchConfig,
+                        Clock.SYSTEM,
+                        cloudWatchAsyncClient
+                )
+                .build();
+    }
 }

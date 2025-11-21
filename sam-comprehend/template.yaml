@@ -11,8 +11,8 @@ Globals:
 Parameters:
   S3BucketName:
     Type: String
-    Default: pgr301-analysis-nicopazaa
-    Description: S3 bucket for storing sentiment analysis results (must exist, e.g. created by Terraform infra-s3)
+    Default: kandidat-48-data
+    Description: S3 bucket for storing sentiment analysis results (must exist, e.g. created by Terraform or manually in S3)
 
 Resources:
   SentimentAnalysisFunction:
